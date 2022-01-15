@@ -29,6 +29,7 @@ public:
 	void print_food();//随机产生食物，保证不与蛇身重合
 	bool ifeat();//判断是否吃到食物
 	void get_direction();//判断前进方向，改变前进方向
+	bool IsKeyDown(int x);
 	bool gameover();//游戏结束判断
 	void print_gameover();//打印游戏结束画面
 	void begingame();
@@ -43,7 +44,7 @@ private:
 	char dir;
 	int score;
 };
-snakegame::snakegame() :height(40), length(160), score(0), trash(false)
+snakegame::snakegame() :height(40), length(160), score(0), trash(false), dir('d')
 {
 	while (!trash)
 	{
@@ -84,8 +85,9 @@ void snakegame::begingame()
 			score += 1;
 			endtime -= 100;
 		}//如果吃到了食物，则重新打印食物
-		for (int i = 0; i < endtime; i++)//设置延时，避免屏幕闪烁,速度过快
-			print_body();
+		//for (int i = 0; i < endtime; i++)//设置延时，避免屏幕闪烁,速度过快
+		Sleep(100);
+		print_body();
 		trash = gameover();
 		if (trash){ break; }
 	}
@@ -137,7 +139,7 @@ void snakegame::print_food()
 	while (tag == 1)
 	{
 		tag = 0;
-		food.x = rand() % (length - 2 - 2) + 2;
+		food.x = rand() % (length-2 - 2) + 2;
 		for (iterator1 = body.begin(); iterator1 != body.end(); ++iterator1)
 		{
 			if (food.x == iterator1->x){ tag = 1; break; }
@@ -147,7 +149,7 @@ void snakegame::print_food()
 	while (tag == 1)
 	{
 		tag = 0;
-		food.y = rand() % (height - 2 - 2) + 2;
+		food.y = rand() % (height-2 - 2) + 2;
 		for (iterator1 = body.begin(); iterator1 != body.end(); ++iterator1)
 		{
 			if (food.y == iterator1->y){ tag = 1; break; }
@@ -160,43 +162,60 @@ void snakegame::printmap()
 {
 	system("mode con cols=160 lines=40");
 	gotoxy(0, 0);
-	for (int i = 0; i < length / 2; i++)
+	for (int i = 0; i < length/2; i++)
 	{
 		cout << "■";
 	}
-	gotoxy(0, height - 1);
+	gotoxy(0, height-1);
 	for (int i = 0; i < length / 2; i++)
 	{
 		cout << "■";
 	}
 	gotoxy(0, 1);
-	for (int i = 0; i < height - 2; i++)
+	for (int i = 0; i < height-2; i++)
 	{
-		cout << "■" << endl;
+		cout<< "■"<<endl;
 	}
-	for (int i = 0; i < height - 2; i++)
+	for (int i = 0; i < height-2; i++)
 	{
-		gotoxy(length - 2, i + 1);
+		gotoxy(length - 2, i+1);
 		cout << "■";
 	}
 	init_body();
 }
+bool snakegame::IsKeyDown(int x)
+{
+	return(GetAsyncKeyState(x));
+}
 void snakegame::get_direction()
 {
-	char temp;
-	char dir1 = dir;
-	switch (temp = _getch())
+	if (IsKeyDown(VK_LEFT))
 	{
-	case 'w':
-		if (dir != 's'){ dir = 'w'; break; }
-	case 'a':
-		if (dir != 'd'){ dir = 'a'; break; }
-	case 's':
-		if (dir != 'w'){ dir = 's'; break; }
-	case 'd':
-		if (dir != 'a'){ dir = 'd'; break; }
-	default:
-		break;
+		if (dir!='d')
+		{
+			dir='a';
+		}
+	}
+	if (IsKeyDown(VK_RIGHT))
+	{
+		if (dir!='a')
+		{
+			dir='d';
+		}
+	}
+	if (IsKeyDown(VK_DOWN))
+	{
+		if (dir != 'w')
+		{
+			dir = 's';
+		}
+	}
+	if (IsKeyDown(VK_UP))
+	{
+		if (dir != 's')
+		{
+			dir = 'w';
+		}
 	}
 }
 void snakegame::gotoxy(int x, int y)
@@ -215,7 +234,7 @@ bool snakegame::gameover()
 		return true;
 	}
 	snake tmp = body.front();
-	for (iterator1 = body.begin() + 1; iterator1 != body.end(); ++iterator1)
+	for (iterator1 = body.begin()+1; iterator1 != body.end(); ++iterator1)
 	{
 		if (iterator1->x == tmp.x&&iterator1->y == tmp.y){ return true; }
 	}
@@ -223,12 +242,13 @@ bool snakegame::gameover()
 }
 void snakegame::print_gameover()
 {
-	gotoxy(length / 2 - 10, height / 2 - 4);
+	gotoxy(length / 2-10, height / 2-4);
 	cout << "游戏结束" << endl;
-	gotoxy(length / 2 - 10, height / 2 - 2);
+	gotoxy(length / 2-10, height / 2-2);
 	cout << "你的分数是：" << score;
 	gotoxy(length / 2 - 10, height / 2);
 	cout << "按b键重新开始，其他任意键退出游戏";
+	system("pause");
 }
 int main()
 {
